@@ -66,7 +66,7 @@ PERSONALITIES: dict[MarketRegime, Personality] = {
         weights={
             **_ZERO_WEIGHTS,
             "nbb": 5.0,         # Primary — reliable candlestick patterns
-            "bb_trend": 1.6,    # KILLED — was in every big loss, toxic in this regime
+            "bb_trend": 0.8,    # Reduced by 50% to prevent bleeding in losing months
             "umar": 2.8,        # Boosted — achieved 100% win rate when filtered
         },
         atr_mult=2.5,           # RESTORED from 2.0 — original value
@@ -181,7 +181,7 @@ PERSONALITIES: dict[MarketRegime, Personality] = {
             **_ZERO_WEIGHTS,
             "quantx": 2.5,
             "ema5": 2.0,
-            "bb_trend": 2.5,
+            "bb_trend": 1.2,
             "umar": 2.5,
             "nbb": 3.0,
             "smt_divergence": 2.5,
