@@ -121,4 +121,26 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["conviction"] = (df["close"] - df["low"]) / candle_range
     df["body_ratio"] = (df["close"] - df["open"]).abs() / candle_range
 
+    # Candlestick Pattern Recognition
+    prev_close = df["close"].shift(1)
+    prev_open = df["open"].shift(1)
+    
+    # 1. Engulfing
+    df["is_bullish_engulfing"] = (df["close"] > df["open"]) & (prev_close < prev_open) & \
+                                 (df["close"] > prev_open) & (df["open"] < prev_close)
+    df["is_bearish_engulfing"] = (df["close"] < df["open"]) & (prev_close > prev_open) & \
+                                 (df["close"] < prev_open) & (df["open"] > prev_close)
+    
+    # 2. Hammer / Shooting Star
+    body_size = (df["close"] - df["open"]).abs()
+    lower_wick = np.where(df["close"] > df["open"], df["open"] - df["low"], df["close"] - df["low"])
+    upper_wick = np.where(df["close"] > df["open"], df["high"] - df["close"], df["high"] - df["open"])
+    
+    df["is_hammer"] = (lower_wick > 2 * body_size) & (df["close"] > df["open"])
+    df["is_shooting_star"] = (upper_wick > 2 * body_size) & (df["close"] < df["open"])
+    
+    # 3. Momentum
+    df["is_bullish_momentum"] = (df["body_ratio"] > 0.6) & (df["close"] > df["open"])
+    df["is_bearish_momentum"] = (df["body_ratio"] > 0.6) & (df["close"] < df["open"])
+
     return df

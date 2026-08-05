@@ -90,7 +90,6 @@ EXCLUDE_SYMBOLS = {
 GOLD_COINS = [
     "BNB/USDT:USDT",
     "WLD/USDT:USDT",
-    "BZ/USDT:USDT",
     "BEAT/USDT:USDT",
     "HOME/USDT:USDT",
     "CRCL/USDT:USDT",
@@ -103,14 +102,13 @@ LONG_ONLY_COINS = [
     "BANK/USDT:USDT",
     "ADA/USDT:USDT",
     "ENA/USDT:USDT",
-    "COTI/USDT:USDT",
 ]
 
 SHORT_ONLY_COINS = [
     "INTC/USDT:USDT",
 ]
 
-BLOCKED_HOURS_IST = [9, 15, 19, 22]
+BLOCKED_HOURS_IST = [0, 3, 9, 15, 19, 21, 22, 23]
 BLOCKED_DAYS = [2]  # Wednesday is day 2 in Python (0=Monday)
 
 MIN_VOLUME_MA = 70000

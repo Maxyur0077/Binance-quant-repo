@@ -35,6 +35,20 @@ def _check_entry_quality(df: pd.DataFrame, direction: int) -> bool:
     return True
 
 
+def _candle_confirmation(df: pd.DataFrame, direction: int) -> bool:
+    last = df.iloc[-1]
+    
+    if direction == BUY:
+        return bool(last.get("is_bullish_engulfing", False) or 
+                    last.get("is_hammer", False) or 
+                    last.get("is_bullish_momentum", False))
+    elif direction == SELL:
+        return bool(last.get("is_bearish_engulfing", False) or 
+                    last.get("is_shooting_star", False) or 
+                    last.get("is_bearish_momentum", False))
+    return False
+
+
 def multi_strategy_scan(
     df: pd.DataFrame,
     symbol: str = "UNKNOWN",
@@ -134,6 +148,8 @@ def multi_strategy_scan(
             return _ret(None)
         if not _check_entry_quality(df, BUY):
             return _ret(None)
+        if not _candle_confirmation(df, BUY):
+            return _ret(None)
 
         return _ret({
             "direction": BUY,
@@ -148,6 +164,8 @@ def multi_strategy_scan(
         if not np.isnan(rsi) and rsi < 20:
             return _ret(None)
         if not _check_entry_quality(df, SELL):
+            return _ret(None)
+        if not _candle_confirmation(df, SELL):
             return _ret(None)
 
         if len(df) >= 6:
