@@ -22,6 +22,7 @@ from azalyst.config import (
     HTF_EMA_FAST, HTF_EMA_SLOW,
     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, ORDER_CAP_TIERS,
     TRAILING_STOP_ENABLED, REGIME_BTC_SYMBOL,
+    BLOCKED_HOURS_IST, BLOCKED_DAYS,
 )
 from azalyst.logger import logger
 from azalyst.indicators import compute_indicators
@@ -737,6 +738,16 @@ class LiveTrader:
         logger.info(f"   Scan complete: {scan_checked} checked, {scan_signals} signals, {scan_no_signal} no signal, {scan_skipped_data} data issues")
 
     def execute_trade(self, symbol: str, df: pd.DataFrame, sig: dict):
+        # Apply Time Filters
+        ist_tz = timezone(timedelta(hours=5, minutes=30))
+        ist_now = datetime.now(ist_tz)
+        if ist_now.hour in BLOCKED_HOURS_IST:
+            logger.info(f"⏳ Skipped trade on {symbol}: Blocked hour {ist_now.hour} IST")
+            return
+        if ist_now.weekday() in BLOCKED_DAYS:
+            logger.info(f"⏳ Skipped trade on {symbol}: Blocked day {ist_now.weekday()}")
+            return
+
         last = df.iloc[-1]
         direction = sig["direction"]
         atr = sig["atr"]

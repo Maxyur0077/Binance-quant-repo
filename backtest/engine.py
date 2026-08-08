@@ -9,6 +9,7 @@ from azalyst.config import (
     BUY, SELL, SLIPPAGE_BPS, TAKER_FEE, MAX_HOLD_SCANS,
     BREAKEVEN_AFTER_SCANS, CANDLE_TF_MIN, HTF_TIMEFRAME,
     TRAILING_STOP_ENABLED, REGIME_BTC_SYMBOL,
+    BLOCKED_HOURS_IST, BLOCKED_DAYS,
 )
 from azalyst.indicators import compute_indicators
 from azalyst.consensus import multi_strategy_scan
@@ -120,6 +121,14 @@ class BacktestEngine:
             self.halt_until = current_time + pd.Timedelta(days=3) # Halt for 3 days
 
     def _open_trade(self, symbol: str, bar: pd.Series, sig: dict, bar_time):
+        # Apply Time Filters
+        ist_time = bar_time if bar_time.tz else bar_time.tz_localize("UTC")
+        ist_time = ist_time.tz_convert("Asia/Kolkata")
+        if ist_time.hour in BLOCKED_HOURS_IST:
+            return
+        if ist_time.dayofweek in BLOCKED_DAYS:
+            return
+
         direction = sig["direction"]
         atr = sig["atr"]
         price = bar["close"]

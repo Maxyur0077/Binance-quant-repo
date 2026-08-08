@@ -88,23 +88,31 @@ EXCLUDE_SYMBOLS = {
 }
 
 GOLD_COINS = [
-    "BNB/USDT:USDT",
-    "WLD/USDT:USDT",
-    "BEAT/USDT:USDT",
-    "HOME/USDT:USDT",
+    # Both Long and Short are highly profitable
     "CRCL/USDT:USDT",
+    "GWEI/USDT:USDT",
+    "HOME/USDT:USDT",
+    "MU/USDT:USDT",
+    "XAU/USDT:USDT",
 ]
 
 LONG_ONLY_COINS = [
+    # Proven to bleed money if Shorted
+    "WLD/USDT:USDT",
+    "BNB/USDT:USDT",
+    "BEAT/USDT:USDT",
+    "CL/USDT:USDT",
+    # Excellent Long Performers
     "BTC/USDT:USDT",
     "XRP/USDT:USDT",
     "GIGGLE/USDT:USDT",
     "BANK/USDT:USDT",
-    "ADA/USDT:USDT",
     "ENA/USDT:USDT",
 ]
 
 SHORT_ONLY_COINS = [
+    # Proven to bleed money if Longed, but Prints money if Shorted
+    "SKYAI/USDT:USDT",
     "INTC/USDT:USDT",
 ]
 

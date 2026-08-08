@@ -32,9 +32,12 @@ def generate_report(engine) -> dict:
     running = engine.initial_balance
     for t in trades:
         running += t["pnl_usd"]
-        peak = max(peak, running)
-        dd = (peak - running) / peak * 100
-        max_dd = max(max_dd, dd)
+        if running > peak:
+            peak = running
+        if peak > 0:
+            dd = (peak - running) / peak * 100
+            if dd > max_dd:
+                max_dd = dd
 
     strat_stats = defaultdict(lambda: {"wins": 0, "losses": 0, "pnl": 0.0, "count": 0})
     for t in trades:
@@ -70,18 +73,25 @@ def generate_report(engine) -> dict:
         if t["pnl_usd"] > 0:
             regime_stats[reg]["wins"] += 1
 
+    return_pct = 0.0
+    if engine.initial_balance > 0:
+        return_pct = round((engine.balance - engine.initial_balance) / engine.initial_balance * 100, 2)
+
     return {
         "total_trades": len(trades),
         "winners": len(winners),
         "losers": len(losers),
         "win_rate": round(win_rate, 1),
         "total_pnl": round(total_pnl, 2),
+        "gross_profit": round(gross_profit, 2),
+        "gross_loss": round(gross_loss, 2),
         "avg_win": round(float(avg_win), 2),
         "avg_loss": round(float(avg_loss), 2),
         "profit_factor": round(profit_factor, 2),
         "max_drawdown_pct": round(max_dd, 2),
+        "initial_balance": round(engine.initial_balance, 2),
         "final_balance": round(engine.balance, 2),
-        "return_pct": round((engine.balance - engine.initial_balance) / engine.initial_balance * 100, 2),
+        "return_pct": return_pct,
         "strategy_breakdown": dict(strat_stats),
         "reason_breakdown": dict(reason_stats),
         "monthly_breakdown": dict(monthly_stats),
