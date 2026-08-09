@@ -95,12 +95,7 @@ GOLD_COINS = [
     "MU/USDT:USDT",
     "XAU/USDT:USDT",
     # New High-Profit CSV additions (>40% WR, >20 trades, >$10 PnL)
-    "HEI/USDT:USDT",
-    "BMT/USDT:USDT",
     "ON/USDT:USDT",
-    "SAGA/USDT:USDT",
-    "COOKIE/USDT:USDT",
-    "KAITO/USDT:USDT",
 ]
 
 LONG_ONLY_COINS = [
@@ -121,6 +116,10 @@ SHORT_ONLY_COINS = [
     # Proven to bleed money if Longed, but Prints money if Shorted
     "SKYAI/USDT:USDT",
     "INTC/USDT:USDT",
+    "HEI/USDT:USDT",
+    "BMT/USDT:USDT",
+    "KAITO/USDT:USDT",
+    "SAGA/USDT:USDT",
 ]
 
 BLOCKED_HOURS_IST = [0, 3, 9, 15, 19, 21, 22, 23]
