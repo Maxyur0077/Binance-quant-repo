@@ -94,6 +94,13 @@ GOLD_COINS = [
     "HOME/USDT:USDT",
     "MU/USDT:USDT",
     "XAU/USDT:USDT",
+    # New High-Profit CSV additions (>40% WR, >20 trades, >$10 PnL)
+    "HEI/USDT:USDT",
+    "BMT/USDT:USDT",
+    "ON/USDT:USDT",
+    "SAGA/USDT:USDT",
+    "COOKIE/USDT:USDT",
+    "KAITO/USDT:USDT",
 ]
 
 LONG_ONLY_COINS = [
