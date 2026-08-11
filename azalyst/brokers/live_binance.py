@@ -216,7 +216,20 @@ class LiveBinanceBroker(BaseBroker):
     def cancel_symbol_orders(self, symbol: str) -> None:
         """Cancel all open orders for a specific symbol (clean up SL/TP)"""
         try:
+            # 1. Standard CCXT cancel all
             self._exchange.cancel_all_orders(symbol)
+            
+            # 2. Aggressive fallback for Binance conditional orders (Stop/TP/Trailing)
+            try:
+                # Fetch stop/conditional orders explicitly
+                stop_orders = self._exchange.fetch_open_orders(symbol, params={"stop": True})
+                if stop_orders:
+                    for o in stop_orders:
+                        self._exchange.cancel_order(o['id'], symbol)
+            except Exception as stop_e:
+                # Ignore errors on fetching/cancelling stops if they don't exist
+                pass
+                
             logger.info(f"🧹 Cancelled all open orders for {symbol}")
         except Exception as e:
             logger.error(f"Failed to cancel orders for {symbol}: {e}")
