@@ -4,7 +4,7 @@ Automated multi-strategy crypto trading system for Binance Futures with a real-t
 
 ## Quick Start
 
-```bash
+```bashm
 pip install -r requirements.txt
 
 # Paper trading with dashboard
