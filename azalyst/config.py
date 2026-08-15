@@ -104,6 +104,7 @@ LONG_ONLY_COINS = [
     "BNB/USDT:USDT",
     "BEAT/USDT:USDT",
     "CL/USDT:USDT",
+    "COOKIE/USDT:USDT",
     # Excellent Long Performers
     "BTC/USDT:USDT",
     "XRP/USDT:USDT",

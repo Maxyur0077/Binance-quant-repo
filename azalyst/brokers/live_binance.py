@@ -214,26 +214,50 @@ class LiveBinanceBroker(BaseBroker):
         return {"sl": sl_order, "tp": tp_order, "trail": trail_order}
 
     def cancel_symbol_orders(self, symbol: str) -> None:
-        """Cancel all open orders for a specific symbol (clean up SL/TP)"""
+        """Cancel ALL open orders for a symbol - standard + conditional (SL/TP/Trailing)."""
+        cancelled_count = 0
+        
+        # Step 1: Standard cancel_all_orders
         try:
-            # 1. Standard CCXT cancel all
             self._exchange.cancel_all_orders(symbol)
-            
-            # 2. Aggressive fallback for Binance conditional orders (Stop/TP/Trailing)
-            try:
-                # Fetch stop/conditional orders explicitly
-                stop_orders = self._exchange.fetch_open_orders(symbol, params={"stop": True})
-                if stop_orders:
-                    for o in stop_orders:
-                        self._exchange.cancel_order(o['id'], symbol)
-            except Exception as stop_e:
-                # Ignore errors on fetching/cancelling stops if they don't exist
-                pass
-                
-            logger.info(f"🧹 Cancelled all open orders for {symbol}")
+            cancelled_count += 1
         except Exception as e:
-            logger.error(f"Failed to cancel orders for {symbol}: {e}")
-            raise  # Raise so caller can retry
+            if "No open orders" not in str(e):
+                logger.warning(f"cancel_all_orders for {symbol}: {e}")
+        
+        # Step 2: Fetch and kill any surviving conditional/stop orders
+        for attempt in range(2):
+            try:
+                remaining = self._exchange.fetch_open_orders(symbol)
+                if not remaining:
+                    break
+                for o in remaining:
+                    try:
+                        self._exchange.cancel_order(o['id'], symbol)
+                        cancelled_count += 1
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            
+            # Also try with stop=True param for conditional orders
+            try:
+                stop_orders = self._exchange.fetch_open_orders(symbol, params={"stop": True})
+                if not stop_orders:
+                    break
+                for o in stop_orders:
+                    try:
+                        self._exchange.cancel_order(o['id'], symbol)
+                        cancelled_count += 1
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            
+            if attempt == 0:
+                time.sleep(0.5)  # Brief pause before retry
+        
+        logger.info(f"🧹 Cancelled {cancelled_count} orders for {symbol}")
 
     def load_markets(self) -> dict:
         return self._public_exchange.load_markets()
@@ -242,8 +266,8 @@ class LiveBinanceBroker(BaseBroker):
         return self._public_exchange.fetch_tickers()
 
     def fetch_ticker(self, symbol: str) -> dict:
-        # --- ANTI-BAN DELAY: 2s cooldown per ticker fetch ---
-        time.sleep(2)
+        # --- ANTI-BAN DELAY: 5s cooldown per ticker fetch ---
+        time.sleep(5)
         return self._public_exchange.fetch_ticker(symbol)
 
     def fetch_ohlcv(self, symbol: str, timeframe: str, limit: int) -> list:

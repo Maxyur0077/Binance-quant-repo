@@ -1037,12 +1037,14 @@ class LiveTrader:
                             new_sl = trade["max_price"] * (1 - p.trail_distance_pct)
                             if new_sl > trade["sl_price"]:
                                 trade["sl_price"] = new_sl
+                                trade["_sl_changed"] = True
                                 logger.info(f"   [TRAIL] {symbol} SL followed up to ${new_sl:.4f}")
                     else:
                         if pnl_move <= -p.trail_trigger_pct:
                             new_sl = trade["min_price"] * (1 + p.trail_distance_pct)
                             if new_sl < trade["sl_price"]:
                                 trade["sl_price"] = new_sl
+                                trade["_sl_changed"] = True
                                 logger.info(f"   [TRAIL] {symbol} SL followed down to ${new_sl:.4f}")
 
                 # --- BREAKEVEN PROTECTION (Parity with backtest engine.py) ---
@@ -1061,12 +1063,14 @@ class LiveTrader:
                                 if new_sl > trade["sl_price"]:
                                     trade["sl_price"] = new_sl
                                     trade["be_moved"] = True
+                                    trade["_sl_changed"] = True
                                     logger.info(f"   [BE] {symbol} SL moved to breakeven+0.2% at ${new_sl:.4f}")
                             else:
                                 new_sl = entry - fee_buffer - profit_lock
                                 if new_sl < trade["sl_price"]:
                                     trade["sl_price"] = new_sl
                                     trade["be_moved"] = True
+                                    trade["_sl_changed"] = True
                                     logger.info(f"   [BE] {symbol} SL moved to breakeven+0.2% at ${new_sl:.4f}")
 
                 # --- Alpha-X STATEFUL EXIT LOGIC (High Priority) ---
@@ -1170,8 +1174,11 @@ class LiveTrader:
                             if new_sl < trade["sl_price"]:
                                 trade["sl_price"] = new_sl
                                 logger.info(f"📈 Trailing SL moved for {symbol}: ${trade['sl_price']:.4f}")
+                                trade["_sl_changed"] = True
 
-                self._save_trade(trade, "open")
+                # Only save to Supabase when something meaningful changed (not every second)
+                if main_scan or trade.pop("_sl_changed", False):
+                    self._save_trade(trade, "open")
 
             if not closed and trade["scan_count"] >= MAX_HOLD_SCANS:
                 exit_price = current_price
